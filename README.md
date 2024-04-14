@@ -1,1 +1,1 @@
-# Student Expense Tracker Using Jetpack Compose And MVVM Architecture
+# Student Expense Tracker Developed Using Jetpack Compose And MVVM Architecture
