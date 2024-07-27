@@ -11,21 +11,15 @@ sealed class OnBoardingPage(
 ) {
 
     object First: OnBoardingPage(
-        image = R.drawable.user_interface_image,
+        image = R.drawable.easy_to_use_illustration,
         title = "Simple and Easy to use",
         description = "Purchased something? Paid something online\nKeep track of it by adding a transaction"
     )
 
     object Second: OnBoardingPage(
-        image = R.drawable.budget_image,
+        image = R.drawable.saving_illustration,
         title = "Stay on track with budgets",
-        description = "Create a budget and see how much you spent."
-    )
-
-    object Third: OnBoardingPage(
-        image = R.drawable.ic_budget,
-        title = "Some Title",
-        description = "Some description"
+        description = "Create a budget and see how much you spent and reduce your spending to save money."
     )
 
 }

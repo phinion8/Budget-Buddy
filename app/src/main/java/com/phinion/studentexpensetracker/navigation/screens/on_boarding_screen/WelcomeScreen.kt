@@ -2,6 +2,13 @@ package com.phinion.studentexpensetracker.navigation.screens.on_boarding_screen
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -49,6 +56,7 @@ fun WelcomeScreen(
 
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(backgroundColor)
+    systemUiController.setNavigationBarColor(backgroundColor)
 
     var nameQuery = remember {
         mutableStateOf("")
@@ -56,21 +64,25 @@ fun WelcomeScreen(
 
     val pageList = listOf(
         OnBoardingPage.First,
-        OnBoardingPage.Second,
-        OnBoardingPage.Third
+        OnBoardingPage.Second
     )
 
-    var dropDownMenuState = remember {
+    val dropDownMenuState = remember {
         mutableStateOf(false)
     }
 
-    var dropDownCurrency = remember {
-        mutableStateOf(Currency(icon = R.drawable.ic_cart, name = "Indian Rupee (INR)", currency = "₹"))
+    val dropDownCurrency = remember {
+        mutableStateOf(
+            Currency(
+                icon = R.drawable.ic_cart,
+                name = "Indian Rupee (INR)",
+                currency = "₹"
+            )
+        )
     }
 
 
     val pagerState = rememberPagerState()
-    var pageCount = pagerState.pageCount
 
 
     Column(
@@ -82,19 +94,37 @@ fun WelcomeScreen(
     ) {
 
         HorizontalPager(
-            count = pageList.size,
+            count = 3,
             modifier = Modifier.weight(8f),
             state = pagerState,
             verticalAlignment = Alignment.CenterVertically
         ) { page ->
 
-            PagerScreen(
-                onBoardingPage = pageList[page],
-                nameQuery = nameQuery,
-                pagerState = pagerState,
-                dropDownMenuState = dropDownMenuState,
-                dropDownCurrency = dropDownCurrency
-            )
+            if (page < 2) {
+
+                PagerScreen(
+                    onBoardingPage = pageList[page],
+                    nameQuery = nameQuery,
+                    pagerState = pagerState,
+                    dropDownMenuState = dropDownMenuState,
+                    dropDownCurrency = dropDownCurrency
+                )
+
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    OnBoardingContent(
+                        pagerState = pagerState,
+                        nameQuery = nameQuery,
+                        dropDownCurrency = dropDownCurrency,
+                        dropDownMenuState = dropDownMenuState
+                    )
+
+                }
+            }
 
         }
 
@@ -181,7 +211,7 @@ fun PagerScreen(
     dropDownMenuState: MutableState<Boolean>
 ) {
 
-    if (onBoardingPage != OnBoardingPage.Third) {
+    if (pagerState.currentPage != 2) {
 
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -219,29 +249,12 @@ fun PagerScreen(
 
         }
 
-    } else {
-
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-
-            OnBoardingContent(
-                pagerState = pagerState,
-                nameQuery = nameQuery,
-                dropDownCurrency = dropDownCurrency,
-                dropDownMenuState = dropDownMenuState
-            )
-
-        }
-
-
     }
 
 
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun OnBoardingContent(
     pagerState: PagerState,
@@ -254,7 +267,9 @@ fun OnBoardingContent(
     //Button visible when we are at the on boarding page of 2
     AnimatedVisibility(
         visible = pagerState.currentPage == 2,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        enter = fadeIn(),
+        exit = fadeOut()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

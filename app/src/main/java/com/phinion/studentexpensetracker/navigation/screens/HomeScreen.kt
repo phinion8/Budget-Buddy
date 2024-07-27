@@ -42,6 +42,7 @@ import com.phinion.studentexpensetracker.data.viewmodels.HomeViewModel
 import com.phinion.studentexpensetracker.models.Transaction
 import com.phinion.studentexpensetracker.navigation.EditBudgetAlertDialog
 import com.phinion.studentexpensetracker.ui.theme.*
+import com.phinion.studentexpensetracker.utils.AppUtils
 import com.phinion.studentexpensetracker.utils.BudgetType
 import com.phinion.studentexpensetracker.utils.RequestState
 import java.text.SimpleDateFormat
@@ -54,25 +55,8 @@ fun HomeScreen(
     onClick: () -> Unit,
     navController: NavController
 ) {
-    var wishState by remember {
-        mutableStateOf("")
-    }
-
-    val calendarTime = Calendar.getInstance()
-    val curTime = calendarTime.get(Calendar.HOUR_OF_DAY)
-    Log.d("curTime", curTime.toString())
-
-
-    if (curTime in 5..11){
-        wishState = "Good Morning"
-    }else if (curTime in 12..17){
-        wishState = "Good Afternoon"
-    }else if (curTime in 18..21){
-        wishState = "Good Evening"
-    }else if(curTime in 22..23){
-        wishState == "Good Night"
-    }else if (curTime in 0..4){
-        wishState == "Good Night"
+    val wishState by remember {
+        mutableStateOf(AppUtils.getGreetText())
     }
 
     val username by homeViewModel.username.collectAsState()
@@ -124,7 +108,7 @@ fun HomeScreen(
 
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(backgroundColor)
-    
+    systemUiController.setNavigationBarColor(bottomBackgroundColor)
 
 
     var totalOutcome by remember {

@@ -14,7 +14,7 @@ fun getCurrencyList(): List<Currency>{
     return listOf(
         Currency(
             icon = R.drawable.ic_ruppee,
-            name = "Indian Rupee (INR)",
+            name = "Indian Rupee\n(INR)",
             currency = "₹"
         ),
         Currency(

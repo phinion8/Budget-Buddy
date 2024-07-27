@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -47,76 +48,26 @@ class MainActivity : ComponentActivity() {
 
                 val updateScreenViewModel: UpdateScreenViewModel by viewModels()
 
-
                 val bottomSheetState =
-                    rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+                    rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden, skipHalfExpanded = true)
 
+                var showBottomBar by remember {
+                    mutableStateOf(false)
+                }
+
+                var showFloatingActionButton by remember {
+                    mutableStateOf(false)
+                }
 
                 val scope = rememberCoroutineScope()
 
-                Scaffold(modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        if (navController.currentBackStackEntryAsState().value?.destination?.route != "transaction_list_screen"
-                            && navController.currentBackStackEntryAsState().value?.destination?.route != Screens.WelcomeScreen.route
-                            && navController.currentBackStackEntryAsState().value?.destination?.route != Screens.SplashScreen.route
-                            && navController.currentBackStackEntryAsState().value?.destination?.route != Screens.Profile.route
-                            && navController.currentBackStackEntryAsState().value?.destination?.route != Screens.UpdateScreen.route
-                        ) {
-                            BottomAppBar(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(bottomBackgroundColor),
-                                cutoutShape = CircleShape,
-                                elevation = 22.dp,
-                                backgroundColor = bottomBackgroundColor
-                            ) {
-                                BottomNavBar(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(bottomBackgroundColor),
-                                    bottomNavItems = listOf(
-                                        BottomNavItem(
-                                            title = "Discover",
-                                            icon = painterResource(id = R.drawable.ic_compass),
-                                            route = Screens.HomeScreen.route
-                                        ),
-                                        BottomNavItem(
-                                            title = "Analytics",
-                                            icon = painterResource(id = R.drawable.ic_analytics),
-                                            route = Screens.AnalyticsScreen.route
-                                        )
-                                    ),
-                                    navController = navController,
-                                    onItemClick = {
-                                        navController.navigate(it.route){
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
 
-                                            navController.graph.startDestinationRoute?.let {screen_route->
-                                                popUpTo(screen_route){
-                                                    saveState = true
-                                                }
-                                            }
-
-                                            this.launchSingleTop = true
-                                            this.restoreState = true
-                                        }
-                                    }
-                                )
-
-
-                            }
-                        }
-
-
-                    },
                     floatingActionButtonPosition = FabPosition.Center,
                     isFloatingActionButtonDocked = true,
                     floatingActionButton = {
-                        if (navController.currentBackStackEntryAsState().value?.destination?.route != "transaction_list_screen"
-                            && navController.currentBackStackEntryAsState().value?.destination?.route != Screens.WelcomeScreen.route
-                            && navController.currentBackStackEntryAsState().value?.destination?.route != Screens.SplashScreen.route
-                            && navController.currentBackStackEntryAsState().value?.destination?.route != Screens.Profile.route
-                            && navController.currentBackStackEntryAsState().value?.destination?.route != Screens.UpdateScreen.route
-                        ) {
+                        if (showFloatingActionButton) {
                             FloatingActionButton(
                                 onClick = {
 
@@ -155,17 +106,28 @@ class MainActivity : ComponentActivity() {
                             sheetElevation = 16.dp,
                             scrimColor = Color.Black.copy(alpha = 0.5f),
                             content = {
+                                BackHandler(enabled = bottomSheetState.isVisible) {
+                                    scope.launch {
+                                        bottomSheetState.hide()
+                                    }
+                                }
                                 Column(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
 
 
-                                    SetUpNavigation(navController = navController, onClick = {
-
-                                        navController.navigate(Screens.Profile.route)
-
-                                    }, updateScreenViewModel = updateScreenViewModel)
-
+                                    SetUpNavigation(
+                                        navController = navController,
+                                        onClick = {
+                                            navController.navigate(Screens.Profile.route)
+                                        },
+                                        updateScreenViewModel = updateScreenViewModel,
+                                        showBottomSheet = {
+                                            showBottomBar = it
+                                        },
+                                        showFAB = {
+                                            showFloatingActionButton = it
+                                        })
 
                                 }
                             },
@@ -179,9 +141,58 @@ class MainActivity : ComponentActivity() {
                                     AddTransactionScreen(navController = navController)
                                 }
                             },
-                        )
 
-                    }
+
+                            )
+
+                    },
+                    bottomBar = {
+                        if (showBottomBar) {
+                            BottomAppBar(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(bottomBackgroundColor),
+                                cutoutShape = CircleShape,
+                                elevation = 22.dp,
+                                backgroundColor = bottomBackgroundColor
+                            ) {
+                                BottomNavBar(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(bottomBackgroundColor),
+                                    bottomNavItems = listOf(
+                                        BottomNavItem(
+                                            title = "Discover",
+                                            icon = painterResource(id = R.drawable.ic_compass),
+                                            route = Screens.HomeScreen.route
+                                        ),
+                                        BottomNavItem(
+                                            title = "Analytics",
+                                            icon = painterResource(id = R.drawable.ic_analytics),
+                                            route = Screens.AnalyticsScreen.route
+                                        )
+                                    ),
+                                    navController = navController,
+                                    onItemClick = {
+                                        navController.navigate(it.route) {
+
+                                            navController.graph.startDestinationRoute?.let { screen_route ->
+                                                popUpTo(screen_route) {
+                                                    saveState = true
+                                                }
+                                            }
+
+                                            this.launchSingleTop = true
+                                            this.restoreState = true
+                                        }
+                                    }
+                                )
+
+
+                            }
+                        }
+
+                    },
                 )
 
 

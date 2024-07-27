@@ -46,13 +46,9 @@ fun TransactionListScreen(
     val currency by homeViewModel.currencyValue.collectAsState()
 
 
-    var totalExpenses by remember {
-        mutableStateOf(0f)
-    }
-
-
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(appPrimaryColor)
+    systemUiController.setNavigationBarColor(backgroundColor)
 
 
     Column(
