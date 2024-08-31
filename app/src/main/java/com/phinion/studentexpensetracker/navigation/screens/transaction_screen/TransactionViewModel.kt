@@ -44,7 +44,6 @@ class TransactionViewModel @Inject constructor(
     fun addTransaction(transaction: Transaction) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.addTransactionDetails(transaction = transaction)
-
         }
     }
 

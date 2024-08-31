@@ -31,9 +31,7 @@ import com.phinion.studentexpensetracker.models.Category
 import com.phinion.studentexpensetracker.models.Currency
 import com.phinion.studentexpensetracker.models.Transaction
 import com.phinion.studentexpensetracker.models.getCategoryList
-import com.phinion.studentexpensetracker.navigation.Screens
 import com.phinion.studentexpensetracker.ui.theme.*
-import com.phinion.studentexpensetracker.utils.ScreenState
 import java.util.*
 
 
@@ -42,15 +40,16 @@ import java.util.*
 @Composable
 fun AddTransactionScreen(
     addTransactionViewModel: TransactionViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
+    onDismissBottomSheet: () -> Unit
 ) {
 
 
     val context = LocalContext.current
 
-    val titleQuery by addTransactionViewModel.titleQuery
+    var titleQuery by addTransactionViewModel.titleQuery
 
-    val noteQuery by addTransactionViewModel.noteQuery
+    var noteQuery by addTransactionViewModel.noteQuery
 
     var amountQuery by addTransactionViewModel.amountQuery
 
@@ -74,9 +73,18 @@ fun AddTransactionScreen(
         mutableStateOf("$currentDay-${currentMonth + 1}-$currentYear")
     }
 
+    var timeInLong by remember {
+        mutableStateOf(0L)
+    }
+
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            val calendar = Calendar.getInstance()
+            calendar.set(mYear, mMonth, mDayOfMonth)
+
+            timeInLong = calendar.timeInMillis
+
             currentDate = "$mDayOfMonth-${mMonth + 1}-$mYear"
         }, currentYear, currentMonth, currentDay
     )
@@ -162,7 +170,7 @@ fun AddTransactionScreen(
             },
             label = {
                 Text(
-                    text = "Note",
+                    text = "Note(Optional)",
                     fontFamily = poppins_regular,
                     textAlign = TextAlign.Center,
                     fontSize = 14.sp
@@ -276,7 +284,7 @@ fun AddTransactionScreen(
         Button(
             onClick = {
 
-                if (titleQuery.isNotEmpty() && noteQuery.isNotEmpty() && amountQuery
+                if (titleQuery.isNotEmpty() && amountQuery
                         .isNotEmpty() && amountQuery != 0.toString()
                 ) {
                     addTransactionViewModel.addTransaction(
@@ -285,10 +293,11 @@ fun AddTransactionScreen(
                             note = noteQuery,
                             amount = amountQuery,
                             time = currentDate,
-                            category = dropDownCategory
+                            category = dropDownCategory,
+                            timeInLong = if (timeInLong > 0) timeInLong else System.currentTimeMillis()
                         )
                     )
-                    navController.navigate(Screens.HomeScreen.route)
+                    onDismissBottomSheet()
                     Toast.makeText(
                         context,
                         "Successfully added the transaction.",

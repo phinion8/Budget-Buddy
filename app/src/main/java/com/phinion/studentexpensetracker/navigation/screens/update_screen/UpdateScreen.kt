@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,44 +40,30 @@ import java.util.*
 fun UpdateScreen(
     navController: NavController,
     updateScreenViewModel: UpdateScreenViewModel,
-    transaction: Transaction
+    transactionId: String
 ) {
 
     val context = LocalContext.current
-
-
+    val lifeCycleOwner = LocalLifecycleOwner.current
 
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(appPrimaryColor)
 
-    BackHandler(enabled = true) {
-        navController.popBackStack()
-    }
+    val calendar = Calendar.getInstance()
+    val currentYear = calendar.get(Calendar.YEAR)
+    val currentMonth = calendar.get(Calendar.MONTH)
+    val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
 
-    var transactionTitle by remember {
+    var titleQuery by remember {
         mutableStateOf("")
     }
 
-    transactionTitle = transaction.title
-
-
-
-    var updatedTransaction by remember {
-        mutableStateOf(transaction)
-    }
-
-
-    var titleQuery by remember {
-        mutableStateOf("${updatedTransaction.title}")
-    }
-
-
     var noteQuery by remember {
-        mutableStateOf("${updatedTransaction.note}")
+        mutableStateOf("")
     }
 
     var amountQuery by remember {
-        mutableStateOf("${updatedTransaction.amount}")
+        mutableStateOf("")
     }
 
     var dropDownMenuState by remember {
@@ -84,25 +71,52 @@ fun UpdateScreen(
     }
 
     var dropDownCategory by remember {
-        mutableStateOf(updatedTransaction.category)
+        mutableStateOf(getCategoryList()[0])
     }
-
-
-    val calendar = Calendar.getInstance()
-    val currentYear = calendar.get(Calendar.YEAR)
-    val currentMonth = calendar.get(Calendar.MONTH)
-    val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
-
-    calendar.time = Date()
 
     var currentDate by remember {
-        mutableStateOf("${updatedTransaction.time}")
+        mutableStateOf("")
     }
+
+    var timeInLong by remember {
+        mutableStateOf(0L)
+    }
+
+
+    LaunchedEffect(
+        key1 = transactionId
+    ) {
+
+        updateScreenViewModel.getSelectedTransaction(transactionId = transactionId.toInt())
+
+    }
+
+    LaunchedEffect(key1 = transactionId) {
+        updateScreenViewModel.selectedTransaction.observe(lifeCycleOwner) { transaction ->
+            titleQuery = transaction!!.title
+            Log.d("UpdateScreen", "onChanged: ${transaction!!.title}: ${titleQuery}")
+            noteQuery = transaction!!.note
+            amountQuery = transaction!!.amount
+            dropDownCategory = transaction!!.category
+
+            calendar.time = Date()
+
+            currentDate = transaction!!.time
+            timeInLong = transaction!!.timeInLong
+        }
+
+    }
+
+    BackHandler(enabled = true) {
+        navController.popBackStack()
+    }
+
 
     val datePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
             currentDate = "$mDayOfMonth-${mMonth + 1}-$mYear"
+            timeInLong = Date(mYear, mMonth, mDayOfMonth).time
         }, currentYear, currentMonth, currentDay
     )
 
@@ -114,7 +128,10 @@ fun UpdateScreen(
     ) {
 
 
-        AppTopBar(navController = navController, title = "Update '${transactionTitle}' ")
+        AppTopBar(
+            navController = navController,
+            title = "Update '${titleQuery}' "
+        )
 
 
         Column(
@@ -153,6 +170,7 @@ fun UpdateScreen(
             TextField(
                 value = titleQuery, onValueChange = {
                     titleQuery = it
+
                 },
                 label = {
                     Text(
@@ -187,7 +205,7 @@ fun UpdateScreen(
                 },
                 label = {
                     Text(
-                        text = "Note",
+                        text = "Note(Optional)",
                         fontFamily = poppins_regular,
                         textAlign = TextAlign.Center,
                         fontSize = 14.sp
@@ -301,17 +319,18 @@ fun UpdateScreen(
             Button(
                 onClick = {
 
-                    if (titleQuery.isNotEmpty() && noteQuery.isNotEmpty() && amountQuery
+                    if (titleQuery.isNotEmpty() && amountQuery
                             .isNotEmpty() && amountQuery != 0.toString()
                     ) {
                         updateScreenViewModel.updateSelectedTransaction(
                             Transaction(
-                                id = updatedTransaction.id,
+                                id = transactionId.toInt(),
                                 title = titleQuery,
                                 note = noteQuery,
                                 amount = amountQuery,
                                 time = currentDate,
-                                category = dropDownCategory
+                                category = dropDownCategory,
+                                timeInLong = timeInLong
                             )
                         )
                         navController.popBackStack()
@@ -322,7 +341,11 @@ fun UpdateScreen(
                         )
                             .show()
                     } else {
-                        Toast.makeText(context, "Please fill out out the fields.", Toast.LENGTH_SHORT)
+                        Toast.makeText(
+                            context,
+                            "Please fill out out the fields.",
+                            Toast.LENGTH_SHORT
+                        )
                             .show()
                     }
 
@@ -331,7 +354,10 @@ fun UpdateScreen(
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(shape = RoundedCornerShape(8.dp), color = buttonBackgroundColor),
+                    .background(
+                        shape = RoundedCornerShape(8.dp),
+                        color = buttonBackgroundColor
+                    ),
                 colors = ButtonDefaults.buttonColors(backgroundColor = buttonBackgroundColor)
             ) {
                 Text(
@@ -347,8 +373,7 @@ fun UpdateScreen(
         }
 
 
-
-
     }
+
 
 }

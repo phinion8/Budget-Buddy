@@ -3,6 +3,7 @@ package com.phinion.studentexpensetracker.di
 import android.content.Context
 import androidx.room.Room
 import com.phinion.studentexpensetracker.data.local.UserDatabase
+import com.phinion.studentexpensetracker.data.local.migrations.MigrationFrom1To2
 import com.phinion.studentexpensetracker.data.local.transaction_database.TransactionDatabase
 import com.phinion.studentexpensetracker.data.repositories.DataStoreOperationImpl
 import com.phinion.studentexpensetracker.data.repositories.DataStoreOperations
@@ -24,6 +25,8 @@ object UserDatabaseModule {
     fun provideDatabase(
         @ApplicationContext context: Context
     ) = Room.databaseBuilder(context, UserDatabase::class.java, USER_DATABASE_NAME)
+        .addMigrations(MigrationFrom1To2())
+        .fallbackToDestructiveMigration()
         .build()
 
     @Provides
@@ -43,7 +46,7 @@ object UserDatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDataStoreOperations(@ApplicationContext context: Context): DataStoreOperations{
+    fun provideDataStoreOperations(@ApplicationContext context: Context): DataStoreOperations {
         return DataStoreOperationImpl(context = context)
     }
 

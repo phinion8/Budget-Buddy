@@ -183,7 +183,8 @@ fun AnalyticsScreen(
                 },
                 maxBudget = dailyBudget,
                 budgetLeft = (dailyBudget - todayOutcome),
-                currency = currency
+                currency = currency,
+                isWeekly = false
             )
 
             //Weekly budget section
@@ -198,7 +199,8 @@ fun AnalyticsScreen(
 
                 },
                 budgetLeft = (weeklyBudget - totalOutcome).toFloat(),
-                currency = currency
+                currency = currency,
+                isWeekly = true
             )
         }
 

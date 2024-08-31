@@ -2,6 +2,8 @@ package com.phinion.studentexpensetracker.navigation.screens.update_screen
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.phinion.studentexpensetracker.data.repositories.Repository
@@ -11,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,17 +23,12 @@ class UpdateScreenViewModel @Inject constructor(
     private val repository: Repository
 ) : ViewModel() {
 
-    val title: MutableState<String> = mutableStateOf("")
-    val note: MutableState<String> = mutableStateOf("")
-    val amount: MutableState<String> = mutableStateOf("")
-    val category: MutableState<Category?> = mutableStateOf(null)
-
-    private val _selectedTransaction: MutableStateFlow<Transaction?> = MutableStateFlow(null)
-    val selectedTransaction: StateFlow<Transaction?> = _selectedTransaction
+    private val _selectedTransaction: MutableLiveData<Transaction> = MutableLiveData()
+    val selectedTransaction: LiveData<Transaction?> = _selectedTransaction
 
 
     fun getSelectedTransaction(transactionId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
 
             repository.getSelectedTransaction(transactionId = transactionId).collect {
                 _selectedTransaction.value = it
@@ -45,27 +43,4 @@ class UpdateScreenViewModel @Inject constructor(
         }
     }
 
-    fun updateTitle(value: String){
-        title.value = value
-    }
-
-    fun updateNote(value: String){
-        note.value = value
-    }
-
-    fun updateAmount(value: String){
-        amount.value = value
-    }
-
-    fun updateCategory(value: Category){
-        category.value = value
-    }
-
 }
-
-data class UiEvent(
-
-    val selectedTransactionId: Int = -1,
-    val selectedTransaction: Transaction? = null,
-
-)

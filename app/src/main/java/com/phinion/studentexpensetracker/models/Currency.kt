@@ -24,12 +24,12 @@ fun getCurrencyList(): List<Currency>{
         ),
         Currency(
             icon = R.drawable.ic_euro,
-            name = "European Euro (EUR)",
+            name = "European Euro\n(EUR)",
             currency = "$"
         ),
         Currency(
             icon = R.drawable.ic_yen,
-            name = "Japanese Yen (YEN)",
+            name = "Japanese Yen\n(YEN)",
             currency = "¥"
         )
     )

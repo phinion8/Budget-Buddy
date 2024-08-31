@@ -47,6 +47,7 @@ import com.phinion.studentexpensetracker.utils.BudgetType
 import com.phinion.studentexpensetracker.utils.RequestState
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToLong
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -63,7 +64,7 @@ fun HomeScreen(
 
     val dailyBudget by homeViewModel.dailyBudget.collectAsState()
 
-    var actualDailyBudget = if(dailyBudget == 0f) 1000f else dailyBudget
+    var actualDailyBudget = if (dailyBudget == 0f) 1000f else dailyBudget
 
 
     val weeklyBudget by homeViewModel.weeklyBudget.collectAsState()
@@ -234,7 +235,7 @@ fun HomeScreen(
                         week5 = weekDay5,
                         week6 = weekDay6,
                         week7 = weekDay7,
-                        )
+                    )
                 }
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -304,11 +305,14 @@ fun HomeScreen(
                             )
                         ) {
                             if (itemAppeared) {
-                                TransactionItem(transaction = transition, currency = currency, onClick = {
+                                TransactionItem(
+                                    transaction = transition,
+                                    currency = currency,
+                                    onClick = {
 
-                                    navController.navigate(route = "update_screen/${transition.id}")
+                                        navController.navigate(route = "update_screen/${transition.id}")
 
-                                })
+                                    })
                             }
 
                         }
@@ -343,7 +347,8 @@ fun HomeScreen(
 
                         }, maxBudget = dailyBudget,
                         budgetLeft = (dailyBudget - todayOutcome),
-                        currency = currency
+                        currency = currency,
+                        isWeekly = false
                     )
                 }
 
@@ -364,7 +369,8 @@ fun HomeScreen(
 
                         },
                         budgetLeft = (weeklyBudget - totalOutcome).toFloat(),
-                        currency = currency
+                        currency = currency,
+                        isWeekly = true
                     )
                 }
 
@@ -403,7 +409,8 @@ fun DailyBudgetSection(
     currentSpending: Float = 0f,
     maxBudget: Float = 1000f,
     onEditClicked: () -> Unit,
-    currency: String
+    currency: String,
+    isWeekly: Boolean
 ) {
 
 
@@ -488,7 +495,8 @@ fun DailyBudgetSection(
                 currentSpending = currentSpending,
                 maxBudget = maxBudget,
                 curPercent = curPercent.value,
-                currency = currency
+                currency = currency,
+                isWeekly = isWeekly
             )
         }
 
@@ -503,8 +511,21 @@ fun BudgetSection(
     currentSpending: Float = 700f,
     maxBudget: Float = 1000f,
     curPercent: Float = 0f,
-    currency: String
+    currency: String,
+    isWeekly: Boolean
 ) {
+
+    val percentageExceeded by remember {
+
+        derivedStateOf {
+
+            (currentSpending / maxBudget) * 100
+
+        }
+
+    }
+
+
     Card(
         modifier = Modifier.fillMaxWidth(0.9f),
         elevation = 4.dp,
@@ -551,13 +572,15 @@ fun BudgetSection(
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-            val currentBudgetPer = (currentSpending / maxBudget) * 100
 
-            if (currentBudgetPer >= 100) {
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = 8.dp),
-           verticalAlignment = Alignment.CenterVertically) {
+
+            if (percentageExceeded >= 100) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_warning),
                         contentDescription = "warning icon",
@@ -571,7 +594,10 @@ fun BudgetSection(
 
             }
 
-            Text(text = "You have exceed the ${currentBudgetPer.toInt()}% of the daily budget")
+            if (isWeekly)
+                Text(text = "You have used ${percentageExceeded.toInt()}% of your weekly budget")
+            else
+                Text(text = "You have used ${percentageExceeded.toInt()}% of your daily budget")
 
         }
 

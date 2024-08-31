@@ -1,6 +1,7 @@
 package com.phinion.studentexpensetracker
 
 import android.annotation.SuppressLint
+import android.graphics.DiscretePathEffect
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.phinion.studentexpensetracker.components.BottomNavBar
@@ -32,6 +34,7 @@ import com.phinion.studentexpensetracker.ui.theme.Orange500
 import com.phinion.studentexpensetracker.ui.theme.StudentExpenseTrackerTheme
 import com.phinion.studentexpensetracker.ui.theme.bottomBackgroundColor
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -45,11 +48,15 @@ class MainActivity : ComponentActivity() {
             StudentExpenseTrackerTheme {
 
                 val navController = rememberNavController()
+                val coroutineScope = rememberCoroutineScope()
 
                 val updateScreenViewModel: UpdateScreenViewModel by viewModels()
 
                 val bottomSheetState =
-                    rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden, skipHalfExpanded = true)
+                    rememberModalBottomSheetState(
+                        initialValue = ModalBottomSheetValue.Hidden,
+                        skipHalfExpanded = true
+                    )
 
                 var showBottomBar by remember {
                     mutableStateOf(false)
@@ -127,7 +134,14 @@ class MainActivity : ComponentActivity() {
                                         },
                                         showFAB = {
                                             showFloatingActionButton = it
-                                        })
+                                        },
+                                        onDismissBottomSheet = {
+
+                                            coroutineScope.launch(Dispatchers.Main) {
+                                                bottomSheetState.hide()
+                                            }
+                                        }
+                                    )
 
                                 }
                             },
@@ -138,7 +152,17 @@ class MainActivity : ComponentActivity() {
                                         .fillMaxHeight(0.7f)
                                         .background(com.phinion.studentexpensetracker.ui.theme.backgroundColor)
                                 ) {
-                                    AddTransactionScreen(navController = navController)
+                                    AddTransactionScreen(
+                                        navController = navController,
+                                        onDismissBottomSheet = {
+                                            coroutineScope.launch(
+                                                Dispatchers.Main
+                                            ) {
+                                                if (bottomSheetState.isVisible) {
+                                                    bottomSheetState.hide()
+                                                }
+                                            }
+                                        })
                                 }
                             },
 

@@ -28,7 +28,8 @@ fun SetUpNavigation(
     navController: NavHostController,
     onClick: () -> Unit,
     showBottomSheet: (Boolean) -> Unit,
-    showFAB: (Boolean) -> Unit
+    showFAB: (Boolean) -> Unit,
+    onDismissBottomSheet: () -> Unit
 ) {
 
     NavHost(navController = navController, startDestination = Screens.SplashScreen.route) {
@@ -47,7 +48,7 @@ fun SetUpNavigation(
         composable(route = "add_screen") {
             showBottomSheet(false)
             showFAB(false)
-            AddTransactionScreen(navController = navController)
+            AddTransactionScreen(navController = navController, onDismissBottomSheet = onDismissBottomSheet)
         }
 
         composable(route = "transaction_list_screen") {
@@ -87,27 +88,18 @@ fun SetUpNavigation(
             showBottomSheet(false)
             showFAB(false)
             val transactionId = navBackStackEntry.arguments?.getString("transactionId")
-
-            LaunchedEffect(key1 = true) {
-                if (transactionId != null) {
-                    updateScreenViewModel.getSelectedTransaction(transactionId = transactionId.toInt())
-                }
-            }
-
-            val selectedTransaction by updateScreenViewModel.selectedTransaction.collectAsState()
-
-            selectedTransaction?.let {
+            if (transactionId != null) {
                 UpdateScreen(
                     updateScreenViewModel = updateScreenViewModel,
                     navController = navController,
-                    transaction = it
+                    transactionId = transactionId
                 )
             }
-
         }
 
-
     }
+
+
 }
 
 

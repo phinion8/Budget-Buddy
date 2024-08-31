@@ -12,6 +12,7 @@ import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -280,7 +281,7 @@ fun OnBoardingContent(
             Icon(
                 imageVector = Icons.Default.Person, contentDescription = "person icon",
                 modifier = Modifier.size(80.dp),
-                tint = Color.White
+                tint = if (isSystemInDarkTheme()) Color.White else appPrimaryColor
             )
 
             Spacer(modifier = Modifier.height(24.dp))
