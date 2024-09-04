@@ -1,7 +1,6 @@
 package com.phinion.studentexpensetracker
 
 import android.annotation.SuppressLint
-import android.graphics.DiscretePathEffect
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -21,15 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.phinion.studentexpensetracker.components.BottomNavBar
-import com.phinion.studentexpensetracker.models.BottomNavItem
+import com.phinion.studentexpensetracker.ui.screens.components.bottombar.BottomNavBar
+import com.phinion.studentexpensetracker.ui.screens.components.models.BottomNavItem
 import com.phinion.studentexpensetracker.navigation.Screens
 import com.phinion.studentexpensetracker.navigation.SetUpNavigation
-import com.phinion.studentexpensetracker.navigation.screens.transaction_screen.AddTransactionScreen
-import com.phinion.studentexpensetracker.navigation.screens.update_screen.UpdateScreenViewModel
+import com.phinion.studentexpensetracker.ui.screens.transactions.add.AddTransactionScreen
+import com.phinion.studentexpensetracker.ui.screens.transactions.update.viewmodel.UpdateScreenViewModel
 import com.phinion.studentexpensetracker.ui.theme.Orange500
 import com.phinion.studentexpensetracker.ui.theme.StudentExpenseTrackerTheme
 import com.phinion.studentexpensetracker.ui.theme.bottomBackgroundColor

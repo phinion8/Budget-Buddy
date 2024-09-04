@@ -1,24 +1,20 @@
 package com.phinion.studentexpensetracker.navigation
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.phinion.studentexpensetracker.navigation.screens.AddUserScreen
-import com.phinion.studentexpensetracker.navigation.screens.HomeScreen
-import com.phinion.studentexpensetracker.navigation.screens.on_boarding_screen.WelcomeScreen
-import com.phinion.studentexpensetracker.navigation.screens.splash_screen.SplashScreen
-import com.phinion.studentexpensetracker.navigation.screens.transaction_screen.AddTransactionScreen
-import com.phinion.studentexpensetracker.navigation.screens.transaction_screen.TransactionListScreen
-import com.phinion.studentexpensetracker.navigation.screens.update_screen.UpdateScreen
-import com.phinion.studentexpensetracker.navigation.screens.update_screen.UpdateScreenViewModel
-import com.phinion.studentexpensetracker.utils.ScreenState
+import com.phinion.studentexpensetracker.ui.screens.home.HomeScreen
+import com.phinion.studentexpensetracker.ui.screens.onboarding.WelcomeScreen
+import com.phinion.studentexpensetracker.ui.screens.splash.SplashScreen
+import com.phinion.studentexpensetracker.ui.screens.transactions.add.AddTransactionScreen
+import com.phinion.studentexpensetracker.ui.screens.transactions.list.TransactionListScreen
+import com.phinion.studentexpensetracker.ui.screens.transactions.update.UpdateScreen
+import com.phinion.studentexpensetracker.ui.screens.transactions.update.viewmodel.UpdateScreenViewModel
+import com.phinion.studentexpensetracker.ui.screens.analytics.AnalyticsScreen
+import com.phinion.studentexpensetracker.ui.screens.profile.ProfileScreen
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -37,12 +33,6 @@ fun SetUpNavigation(
             showBottomSheet(true)
             showFAB(true)
             HomeScreen(onClick = onClick, navController = navController)
-        }
-
-        composable(route = Screens.AddUserScreen.route) {
-            showBottomSheet(false)
-            showFAB(false)
-            AddUserScreen()
         }
 
         composable(route = "add_screen") {
@@ -77,9 +67,9 @@ fun SetUpNavigation(
             showFAB(false)
             SplashScreen(navController = navController)
         }
-        composable(route = "update_screen/{transactionId}",
+        composable(route = Screens.UpdateScreen.route,
             arguments = listOf(
-                navArgument("transactionId") {
+                navArgument(Screens.UpdateScreen.TRANSACTION_ID_ARG) {
                     NavType.StringType
                 }
             )
@@ -87,10 +77,10 @@ fun SetUpNavigation(
 
             showBottomSheet(false)
             showFAB(false)
-            val transactionId = navBackStackEntry.arguments?.getString("transactionId")
+            val transactionId = navBackStackEntry.arguments?.getString(Screens.UpdateScreen.TRANSACTION_ID_ARG)
             if (transactionId != null) {
                 UpdateScreen(
-                    updateScreenViewModel = updateScreenViewModel,
+                    viewModel = updateScreenViewModel,
                     navController = navController,
                     transactionId = transactionId
                 )
